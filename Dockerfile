@@ -1,10 +1,16 @@
-FROM grafana/grafana
+ARG GRAFANA_VERSION="latest"
 
-RUN grafana-cli plugins install hawkular-datasource && \
-    chown -R 1001:0 /var/lib/grafana /var/log/grafana 
+FROM grafana/grafana:${GRAFANA_VERSION}
 
-    
-USER 1001
-EXPOSE 3000
+USER grafana
 
-CMD /usr/sbin/grafana-server --homepath=/usr/share/grafana --config=/etc/grafana/grafana.ini
+ARG GF_INSTALL_PLUGINS="hawkular-datasource"
+
+RUN if [ ! -z "${GF_INSTALL_PLUGINS}" ]; then \
+    OLDIFS=$IFS; \
+        IFS=','; \
+    for plugin in ${GF_INSTALL_PLUGINS}; do \
+        IFS=$OLDIFS; \
+        grafana-cli --pluginsDir "$GF_PATHS_PLUGINS" plugins install ${plugin}; \
+    done; \
+fi
