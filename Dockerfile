@@ -28,6 +28,8 @@ RUN apt-get update && apt-get install -qq -y tar libfontconfig curl ca-certifica
 EXPOSE 3000
 
 COPY ./run.sh /run.sh
+RUN  chmod ug+rwx /run.sh
+
 
 USER 1001
 WORKDIR /
